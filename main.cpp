@@ -101,7 +101,7 @@ int main(int argc, char** argv)
     std::cout << "Errors setting texture filtering settings " << glGetError() << std::endl;
     // Load image, create texture and generate mipmaps
     int width, height, channels;
-    unsigned char* image = stbi_load("resources/container.jpg", &width, &height, &channels, 0);
+    unsigned char* image = stbi_load("resources/images/container.jpg", &width, &height, &channels, 0);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
     std::cout << "Error loading texture data " << glGetError() << std::endl;
     std::cout << "Image (width, height, channels): (" << width << ", " << height << ", " << channels << ")" << std::endl;
