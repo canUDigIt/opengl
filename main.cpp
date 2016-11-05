@@ -1,6 +1,6 @@
 #include <iostream>
 
-//#define GLEW_STATIC
+#define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #define STB_IMAGE_IMPLEMENTATION
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 
     glViewport(0, 0, WIDTH, HEIGHT);
 
-    Shader ourShader("../shader.vs", "../shader.frag");
+    Shader ourShader("resources/shaders/shader.vert", "resources/shaders/shader.frag");
     
     GLfloat vertices[] = {
         // Positions          // Colors           // Texture Coords
@@ -101,13 +101,10 @@ int main(int argc, char** argv)
     std::cout << "Errors setting texture filtering settings " << glGetError() << std::endl;
     // Load image, create texture and generate mipmaps
     int width, height, channels;
-    unsigned char* image = stbi_load("/home/tracy/workspaces/opengl/resources/container.jpg", &width, &height, &channels, 0);
+    unsigned char* image = stbi_load("resources/container.jpg", &width, &height, &channels, 0);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
     std::cout << "Error loading texture data " << glGetError() << std::endl;
-    int size;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
     std::cout << "Image (width, height, channels): (" << width << ", " << height << ", " << channels << ")" << std::endl;
-    std::cout << "Max texture size: " << size << std::endl;
     glGenerateMipmap(GL_TEXTURE_2D);
     std::cout << "Error generating mip maps " << glGetError() << std::endl;
     glBindTexture(GL_TEXTURE_2D, 0);

@@ -2,28 +2,34 @@ cmake_minimum_required(VERSION 3.5)
 project(opengl)
 
 find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
-if (GLEW_FOUND)
-    include_directories(${GLEW_INCLUDE_DIRS})
-    link_libraries(${GLEW_LIBRARIES})
-endif()
+
+add_subdirectory(${CMAKE_SOURCE_DIR}/dependencies/glfw-3.2.1)
+add_subdirectory(${CMAKE_SOURCE_DIR}/dependencies/glew-2.0.0/build/cmake)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 include_directories(
-    ${CMAKE_SOURCE_DIR}/dependencies/glfw/include
+	${CMAKE_SOURCE_DIR}/dependencies/glfw-3.2.1/include
+	${CMAKE_SOURCE_DIR}/dependencies/glew-2.0.0/include
     ${CMAKE_SOURCE_DIR}/dependencies/stb-master
     ${OPENGL_INCLUDE_DIR})
 
 set(SOURCE_FILES 
-    main.cpp)
+    main.cpp
+	Shader.h)
 
 add_executable(opengl ${SOURCE_FILES})
 
-target_link_libraries(opengl glfw)
+target_link_libraries(opengl glfw ${GLFW_LIBRARIES})
+target_link_libraries(opengl glew_s)
 if(OPENGL_FOUND)
     target_link_libraries(opengl ${OPENGL_gl_LIBRARY})
 endif()
 if(OPENGL_GLU_FOUND)
     target_link_libraries(opengl ${OPENGL_glu_LIBRARY})
 endif()
+
+add_custom_command(TARGET opengl POST_BUILD	
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		${CMAKE_SOURCE_DIR}/resources
+		$<TARGET_FILE_DIR:opengl>/resources)

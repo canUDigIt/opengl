@@ -22,8 +22,8 @@ public:
         std::ifstream vShaderFile;
         std::ifstream fShaderFile;
         // ensures ifstream objects can throw exceptions
-        vShaderFile.exceptions(std::ifstream::badbit);
-        fShaderFile.exceptions(std::ifstream::badbit);
+        vShaderFile.exceptions(std::ifstream::failbit);
+        fShaderFile.exceptions(std::ifstream::failbit);
         try
         {
             // Open files
