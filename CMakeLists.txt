@@ -11,6 +11,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 include_directories(
 	${CMAKE_SOURCE_DIR}/dependencies/glfw-3.2.1/include
 	${CMAKE_SOURCE_DIR}/dependencies/glew-2.0.0/include
+	${CMAKE_SOURCE_DIR}/dependencies/glm-0.9.8.2
     ${CMAKE_SOURCE_DIR}/dependencies/stb-master
     ${OPENGL_INCLUDE_DIR})
 
