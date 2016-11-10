@@ -17,7 +17,8 @@ include_directories(
 
 set(SOURCE_FILES 
     main.cpp
-	Shader.h)
+	Shader.h
+	Camera.h)
 
 add_executable(opengl ${SOURCE_FILES})
 
