@@ -76,15 +76,15 @@ public:
         }
 
         // Shader Program
-        Program = glCreateProgram();
-        glAttachShader(Program, vertex);
-        glAttachShader(Program, fragment);
-        glLinkProgram(Program);
+        this->Program = glCreateProgram();
+        glAttachShader(this->Program, vertex);
+        glAttachShader(this->Program, fragment);
+        glLinkProgram(this->Program);
         // Print linking errors if any
-        glGetProgramiv(Program, GL_LINK_STATUS, &success);
+        glGetProgramiv(this->Program, GL_LINK_STATUS, &success);
         if (!success)
         {
-            glGetProgramInfoLog(Program, 512, nullptr, infoLog);
+            glGetProgramInfoLog(this->Program, 512, nullptr, infoLog);
             std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
         }
 
@@ -92,7 +92,7 @@ public:
         glDeleteShader(fragment);
     }
     // Use the program
-    void Use() { glUseProgram(Program); }
+    void Use() { glUseProgram(this->Program); }
 };
 
 #endif // SHADER_H
