@@ -2,3 +2,4 @@ build/
 !dependencies/glew-2.0.0/build
 
 .ycm_extra_conf.py
+glew.pc
