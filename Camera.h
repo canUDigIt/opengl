@@ -133,4 +133,4 @@ private:
 	}
 };
 
-#endif CAMERA_H
+#endif // CAMERA_H
