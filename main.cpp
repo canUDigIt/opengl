@@ -234,14 +234,26 @@ int main(int argc, char** argv)
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-		GLint objectColorLoc = glGetUniformLocation(basicShader.Program, "objectColor");
-		GLint lightColorLoc = glGetUniformLocation(basicShader.Program, "lightColor");
-		GLint lightPosLoc = glGetUniformLocation(basicShader.Program, "lightPos");
+		GLint lightPosLoc = glGetUniformLocation(basicShader.Program, "light.position");
+        GLint lightAmbientLoc = glGetUniformLocation(basicShader.Program, "light.ambient");
+        GLint lightDiffuseLoc = glGetUniformLocation(basicShader.Program, "light.diffuse");
+        GLint lightSpecularLoc = glGetUniformLocation(basicShader.Program, "light.specular");
 		GLint viewPosLoc = glGetUniformLocation(basicShader.Program, "viewPos");
-		glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
-		glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
 		glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
+        glUniform3f(lightAmbientLoc, 0.2f, 0.2f, 0.2f);
+        glUniform3f(lightDiffuseLoc, 0.5f, 0.5f, 0.5f);
+        glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);
 		glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);	
+
+        GLint matAmbientLoc = glGetUniformLocation(basicShader.Program, "material.ambient");
+        GLint matDiffuseLoc = glGetUniformLocation(basicShader.Program, "material.diffuse");
+        GLint matSpecularLoc = glGetUniformLocation(basicShader.Program, "material.specular");
+        GLint matShineLoc = glGetUniformLocation(basicShader.Program, "material.shininess");
+
+        glUniform3f(matAmbientLoc, 1.0f, 0.5f, 0.31f);
+        glUniform3f(matDiffuseLoc, 1.0f, 0.5f, 0.31f);
+        glUniform3f(matSpecularLoc, 0.5f, 0.5f, 0.5f);
+        glUniform1f(matShineLoc, 32.0f);
 
         //glActiveTexture(GL_TEXTURE0);
         //glBindTexture(GL_TEXTURE_2D, texture1);

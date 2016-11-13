@@ -31,7 +31,10 @@ if(OPENGL_GLU_FOUND)
     target_link_libraries(opengl ${OPENGL_glu_LIBRARY})
 endif()
 
-add_custom_command(TARGET opengl POST_BUILD	
+install(TARGETS opengl DESTINATION bin)
+install(DIRECTORY resources DESTINATION bin)
+
+add_custom_command(TARGET opengl PRE_BUILD	
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 		${CMAKE_SOURCE_DIR}/resources
 		$<TARGET_FILE_DIR:opengl>/resources)
