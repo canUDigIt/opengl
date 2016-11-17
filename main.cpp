@@ -185,6 +185,19 @@ int main(int argc, char** argv)
 
     glEnable(GL_DEPTH_TEST);
 
+    glm::vec3 cubePositions[] = {
+        glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f,  2.0f, -2.5f),
+        glm::vec3( 1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
+    
     while(!glfwWindowShouldClose(window))
     {
 		GLfloat currentFrame = glfwGetTime();
@@ -203,34 +216,42 @@ int main(int argc, char** argv)
 
 		basicShader.Use();
 
-		glm::mat4 model;
+        glm::mat4 model;
         glm::mat4 projection;
         projection = glm::perspective(glm::radians(camera.Zoom), WIDTH / static_cast<GLfloat>(HEIGHT), 0.1f, 100.0f);
 
         GLuint modelLoc = glGetUniformLocation(basicShader.Program, "model");
 		GLuint viewLoc = glGetUniformLocation(basicShader.Program, "view");
         GLuint projectionLoc = glGetUniformLocation(basicShader.Program, "projection");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-		GLint lightPosLoc = glGetUniformLocation(basicShader.Program, "light.position");
 		GLint viewPosLoc = glGetUniformLocation(basicShader.Program, "viewPos");
 
-		glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);	
-		glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
+		glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);	
 
         glm::vec3 lightColor(1.0f);
         glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
         glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
         
+		GLint lightPosLoc = glGetUniformLocation(basicShader.Program, "light.position");
+        GLint lightDirLoc = glGetUniformLocation(basicShader.Program, "light.direction");
+        GLint lightCutOffLoc = glGetUniformLocation(basicShader.Program, "light.cutOff");
+        GLint lightOuterCutOffLoc = glGetUniformLocation(basicShader.Program, "light.outerCutOff");
         GLint lightAmbientLoc = glGetUniformLocation(basicShader.Program, "light.ambient");
         GLint lightDiffuseLoc = glGetUniformLocation(basicShader.Program, "light.diffuse");
         GLint lightSpecularLoc = glGetUniformLocation(basicShader.Program, "light.specular");
         
+		glUniform3f(lightPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
+        glUniform3f(lightDirLoc, camera.Front.x, camera.Front.y, camera.Front.z);
+        glUniform1f(lightCutOffLoc, glm::cos(glm::radians(25.0f)));
+        glUniform1f(lightOuterCutOffLoc, glm::cos(glm::radians(35.0f)));
         glUniform3f(lightAmbientLoc, ambientColor.x, ambientColor.y, ambientColor.z);
         glUniform3f(lightDiffuseLoc, diffuseColor.x, diffuseColor.y, diffuseColor.z);
         glUniform3f(lightSpecularLoc, lightColor.x, lightColor.y, lightColor.z);
+        glUniform1f(glGetUniformLocation(basicShader.Program, "light.constant"), 1.0f);
+        glUniform1f(glGetUniformLocation(basicShader.Program, "light.linear"), 0.09f);
+        glUniform1f(glGetUniformLocation(basicShader.Program, "light.quadratic"), 0.032f);
 
         GLint matDiffuseLoc = glGetUniformLocation(basicShader.Program, "material.diffuse");
         GLint matSpecularLoc = glGetUniformLocation(basicShader.Program, "material.specular");
@@ -248,6 +269,16 @@ int main(int argc, char** argv)
 
         glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+        for(GLuint i = 0; i < 10; i++)
+        {
+           model = glm::mat4();
+           model = glm::translate(model, cubePositions[i]);
+           GLfloat angle = 20.0f * i; 
+           model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+           glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+           glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
         glBindVertexArray(0);
 
 		lightShader.Use();
