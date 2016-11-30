@@ -66,27 +66,29 @@ private:
         std::vector<GLuint> indices;
         std::vector<Texture> textures;
 
-        for(auto i = 0; i < pMesh->mNumVertices; ++i)
+        for (auto i = 0; i < pMesh->mNumVertices; ++i)
         {
             Vertex vertex;
 
             // Process vertices
-            vertex.position.x = pMesh->mVertices[i].x;
-            vertex.position.y = pMesh->mVertices[i].y;
-            vertex.position.z = pMesh->mVertices[i].z;
+			if (pMesh->mVertices)
+			{
+				vertex.position.x = pMesh->mVertices[i].x;
+				vertex.position.y = pMesh->mVertices[i].y;
+				vertex.position.z = pMesh->mVertices[i].z;
+			}
 
-            vertex.normal.x = pMesh->mNormals[i].x;
-            vertex.normal.y = pMesh->mNormals[i].y;
-            vertex.normal.z = pMesh->mNormals[i].z;
+			if (pMesh->mNormals)
+			{
+				vertex.normal.x = pMesh->mNormals[i].x;
+				vertex.normal.y = pMesh->mNormals[i].y;
+				vertex.normal.z = pMesh->mNormals[i].z;
+			}
 
-            if(pMesh->mTextureCoords[0])
+            if (pMesh->mTextureCoords[0])
             {
                 vertex.texCoord.x = pMesh->mTextureCoords[0][i].x;
                 vertex.texCoord.y = pMesh->mTextureCoords[0][i].y;
-            }
-            else
-            {
-                vertex.texCoord = glm::vec2(0.0f, 0.0f);
             }
             
             vertices.push_back(vertex);
@@ -161,7 +163,7 @@ GLint TextureFromFile(const char* path, const std::string& directory)
     unsigned char* image = stbi_load(filename.c_str(), &width, &height, &channels, 0);
     // Assign texture to ID
     glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
     glGenerateMipmap(GL_TEXTURE_2D);	
 
     // Parameters

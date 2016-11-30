@@ -81,7 +81,7 @@ int main(int argc, char** argv)
     glEnable(GL_DEPTH_TEST);
 
     Shader shader("resources/shaders/model_loading.vert", "resources/shaders/model_loading.frag");
-    Model nanosuitModel("resources/nanosuit2.obj");
+    Model nanosuitModel("resources/nanosuit.obj");
 
     while(!glfwWindowShouldClose(window))
     {
