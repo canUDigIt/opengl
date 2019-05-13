@@ -1,33 +1,36 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.12)
 project(opengl VERSION 1.0 LANGUAGES CXX C)
 
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/dependencies/glfw-3.2.1)
-add_subdirectory(${CMAKE_SOURCE_DIR}/dependencies/assimp-4.1.0)
+add_subdirectory(dependencies)
 
 add_executable(opengl
     src/main.cpp
-    dependencies/glad/src/glad.c
+
+    src/Camera.h
+    src/Mesh.h
+    src/Model.h
+    src/Shader.h
 )
 
-target_include_directories(opengl
-    PRIVATE
-        include
-
-        dependencies/glad/include
-        dependencies/glfw-3.2.1/include
-        dependencies/glm-0.9.8.2
-        dependencies/stb-master
-        dependencies/assimp-4.1.0/include
-)
+# I have to manually get the include directories from
+# the assimp target because they use `include_directories()`
+# instead of `target_include_directories(PUBLIC)`...
+# which would've allowed cmake to automatically include them
+# when you link against assimp in `target_link_libraries()`
+# I should fix that in the CMakeLists.txt for assimp
+get_target_property(assimp_INCLUDES assimp INCLUDE_DIRECTORIES)
+target_include_directories(opengl PRIVATE ${assimp_INCLUDES})
 
 target_link_libraries(opengl
     PRIVATE
         glfw
-        ${GLFW_LIBRARIES}
+        glad
         assimp
+        glm
+        stb
         OpenGL::OpenGL
         OpenGL::GLX
         OpenGL::GLU
