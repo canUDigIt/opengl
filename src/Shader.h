@@ -4,92 +4,32 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <memory>
 
-#include <glad/glad.h>
+#include <QOpenGLExtraFunctions>
+#include <QVector2D>
+#include <QVector3D>
+#include <QMatrix4x4>
 
 class Shader
 {
 public:
-    // The program ID
-    GLuint Program;
-    // Constructor reads and builds the shader
-    Shader(const GLchar* vertexPath, const GLchar* fragmentPath)
-    {
-        // 1. Retrieve the vertex/fragment source code from filePath
-        std::string vertexCode;
-        std::string fragmentCode;
-        std::ifstream vShaderFile;
-        std::ifstream fShaderFile;
-        // ensures ifstream objects can throw exceptions
-        vShaderFile.exceptions(std::ifstream::failbit);
-        fShaderFile.exceptions(std::ifstream::failbit);
-        try
-        {
-            // Open files
-            vShaderFile.open(vertexPath);
-            fShaderFile.open(fragmentPath);
-            std::stringstream vShaderStream, fShaderStream;
-            // Read file's buffer contents into streams
-            vShaderStream << vShaderFile.rdbuf();
-            fShaderStream << fShaderFile.rdbuf();
-            // close file handlers
-            vShaderFile.close();
-            fShaderFile.close();
-            // Convert stream into GLchar array
-            vertexCode = vShaderStream.str();
-            fragmentCode = fShaderStream.str();
-        }
-        catch(std::ifstream::failure e)
-        {
-            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
-        }
-        const GLchar* vShaderCode = vertexCode.c_str();
-        const GLchar* fShaderCode = fragmentCode.c_str();
+    Shader(QOpenGLExtraFunctions* functions, const char* vertexPath, const char* fragmentPath);
 
-        // 2. Compile shaders
-        GLuint vertex, fragment;
-        GLint success;
-        GLchar infoLog[512];
+    Shader() = delete;
+    ~Shader() = default;
 
-        // Vertex Shader
-        vertex = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertex, 1, &vShaderCode, nullptr);
-        glCompileShader(vertex);
-        // Print compile errors if any
-        glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
-        if (!success)
-        {
-            glGetShaderInfoLog(vertex, 512, nullptr, infoLog);
-            std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-        }
+    void use();
 
-        fragment = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragment, 1, &fShaderCode, nullptr);
-        glCompileShader(fragment);
-        // Print compile errors if any
-        glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
-        if (!success)
-        {
-            glGetShaderInfoLog(fragment, 512, nullptr, infoLog);
-            std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-        }
+    void setInt(const std::string& name, int i);
+    void setVec2(const std::string& name, const QVector2D& vec2);
+    void setVec3(const std::string& name, const QVector3D& vec3);
+    void setMat4(const std::string& name, const QMatrix4x4& mat4);
 
-        // Shader Program
-        this->Program = glCreateProgram();
-        glAttachShader(this->Program, vertex);
-        glAttachShader(this->Program, fragment);
-        glLinkProgram(this->Program);
-        // Print linking errors if any
-        glGetProgramiv(this->Program, GL_LINK_STATUS, &success);
-        if (!success)
-        {
-            glGetProgramInfoLog(this->Program, 512, nullptr, infoLog);
-            std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-        }
+private:
+    void checkCompileErrors(uint32_t shader, const std::string& type);
 
-        glDeleteShader(vertex);
-        glDeleteShader(fragment);
-    }
-    // Use the program
-    void Use() { glUseProgram(this->Program); }
+    uint32_t ID = 0;
+
+    QOpenGLExtraFunctions* gl = nullptr;
 };

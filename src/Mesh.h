@@ -2,26 +2,25 @@
 
 #include "Shader.h"
 
+#include <QOpenGLExtraFunctions>
+
 #include <string>
 #include <vector>
-
-#include <glad/glad.h>
-#include <glm/glm.hpp>
 
 #include <assimp/types.h>
 
 struct Vertex
 {
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec2 texCoord;
+    QVector3D position;
+    QVector3D normal;
+    QVector3D texCoord;
 };
 
 struct Texture
 {
-    GLuint id;
-    std::string type;
-    aiString path;
+    uint32_t id = 0;
+    std::string type = "";
+    std::string path = "";
 };
 
 class Mesh
@@ -31,76 +30,79 @@ public:
     std::vector<GLuint> indices;
     std::vector<Texture> textures;
 
-    Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices, const std::vector<Texture>& textures)
-    {
-        this->vertices = vertices;
-        this->indices = indices;
-        this->textures = textures;
+    Mesh() = default;
+    ~Mesh() = default;
 
-        this->SetupMesh();
+    void load(QOpenGLExtraFunctions* gl, const std::vector<Vertex>& v, const std::vector<uint32_t>& i, const std::vector<Texture>& t)
+    {
+        vertices = v;
+        indices = i;
+        textures = t;
+
+        setupMesh(gl);
     }
 
-    void Draw(const Shader& shader)
+    void draw(QOpenGLExtraFunctions* gl, Shader& program)
     {
         GLuint diffuseNr = 1;
         GLuint specularNr = 1;
-        for(auto i = 0; i < this->textures.size(); ++i) {
-            glActiveTexture(GL_TEXTURE0 + i);
+        for(auto i = 0; i < textures.size(); ++i) {
+            gl->glActiveTexture(GL_TEXTURE0 + i);
 
-            std::string name = this->textures[i].type;
+            std::string name = textures[i].type;
             std::string number;
             if(name == "texture_diffuse")
                 number = std::to_string(diffuseNr++);
             else if(name == "texture_specular")
                 number = std::to_string(specularNr++);
 
-            glUniform1f(glGetUniformLocation(shader.Program, (name + number).c_str()), i);
-            glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
+            program.setInt((name + number).c_str(), i);
+            gl->glBindTexture(GL_TEXTURE_2D, textures[i].id);
         }
-        glActiveTexture(GL_TEXTURE0);
+        gl->glActiveTexture(GL_TEXTURE0);
 
-        glBindVertexArray(this->VAO);
-        glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        gl->glBindVertexArray(VAO);
+        gl->glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+        gl->glBindVertexArray(0);
 
         // Cleaning up texture state
-        for(auto i = 0; i < this->textures.size(); ++i){
-            glActiveTexture(GL_TEXTURE0 + i);
-            glBindTexture(GL_TEXTURE_2D, 0);
+        for(auto i = 0; i < textures.size(); ++i){
+            gl->glActiveTexture(GL_TEXTURE0 + i);
+            gl->glBindTexture(GL_TEXTURE_2D, 0);
         }
     }
 
 private:
-    GLuint VAO;
-    GLuint VBO;
-    GLuint EBO;
+    uint32_t VAO;
+    uint32_t VBO;
+    uint32_t EBO;
 
-    void SetupMesh()
+    void setupMesh(QOpenGLExtraFunctions* gl)
     {
-        glGenVertexArrays(1, &this->VAO);
-        glGenBuffers(1, &this->VBO);
-        glGenBuffers(1, &this->EBO);
+        gl->glGenVertexArrays(1, &VAO);
+        gl->glGenBuffers(1, &VBO);
+        gl->glGenBuffers(1, &EBO);
 
-        glBindVertexArray(this->VAO);
+        gl->glBindVertexArray(VAO);
 
-        glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-        glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), this->vertices.data(), GL_STATIC_DRAW);
+        gl->glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        gl->glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(GLuint), this->indices.data(), GL_STATIC_DRAW);
+        gl->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        gl->glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
         //Vertex positions
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
+        gl->glEnableVertexAttribArray(0);
+        gl->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
 
         // Vertex normals
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
+        gl->glEnableVertexAttribArray(1);
+        gl->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
 
         // Vertex texcoords
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, texCoord));
+        gl->glEnableVertexAttribArray(2);
+        gl->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, texCoord));
 
-        glBindVertexArray(0);
+        gl->glBindVertexArray(0);
     }
 };
