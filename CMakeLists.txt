@@ -31,10 +31,21 @@ target_link_libraries(opengl
         assimp
         glm
         stb
+)
+
+if (WIN32)
+target_link_libraries(opengl
+    PRIVATE
+        OpenGL::GL
+)
+else()
+target_link_libraries(opengl
+    PRIVATE
         OpenGL::OpenGL
         OpenGL::GLX
         OpenGL::GLU
 )
+endif()
 
 install(TARGETS opengl DESTINATION bin)
 install(DIRECTORY resources DESTINATION bin)
