@@ -35,6 +35,7 @@ public:
     float FarZ = 1000.f;
 
 	Camera() { updateCameraVectors(); }
+
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
            GLfloat yaw = -90.0f,
@@ -45,11 +46,8 @@ public:
 
         // Constructor with scalar values
 	Camera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat upY, GLfloat upZ, GLfloat yaw, GLfloat pitch)
+        : Position(posX, posY, posZ), Up(upX, upY, upZ), Yaw(yaw), Pitch(pitch)
 	{
-		Position = glm::vec3(posX, posY, posZ);
-		WorldUp = glm::vec3(upX, upY, upZ);
-		Yaw = yaw;
-		Pitch = pitch;
 		updateCameraVectors();
 	}
 
