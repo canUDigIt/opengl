@@ -2,3 +2,5 @@ build/
 
 .clangd/
 .ccls/
+
+compile_commands.json
