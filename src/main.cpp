@@ -62,7 +62,6 @@ int main(int argc, char** argv)
     glfwMakeContextCurrent(window);
 
     glfwSetKeyCallback(window, key_callback);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
@@ -76,8 +75,30 @@ int main(int argc, char** argv)
 
     glEnable(GL_DEPTH_TEST);
 
-    Shader shader("resources/shaders/model_loading.vert", "resources/shaders/model_loading.frag");
-    Model nanosuitModel("resources/nanosuit.obj");
+    std::vector<Vertex> vertices = {
+        {{-0.5, -0.5, 0.0}, {0.0, 0.0, 1.0}, {0.0, 0.0}},
+        {{0.5, -0.5, 0.0}, {0.0, 0.0, 1.0}, {0.0, 1.0}},
+        {{0.5, 0.5, 0.0}, {0.0, 0.0, 1.0}, {1.0, 1.0}},
+        {{-0.5, 0.5, 0.0}, {0.0, 0.0, 1.0}, {1.0, 0.0}},
+    };
+    std::vector<uint32_t> indices = {0, 1, 2, 0, 2, 3};
+
+    Shader shader("resources/shaders/basic.vert", "resources/shaders/basic.frag");
+    std::vector<Texture> textures = {
+        {TextureFromFile("awesomeface.png", "resources/images"), "diffuse",
+         "resources/images/awesomeface.png"}
+    };
+
+    IndexedTriangleList triList{vertices, indices};
+    Material mat{shader, textures};
+
+    Mesh box{triList, mat};
+    box.CreateGraphicResources();
+
+    camera.Width = WIDTH;
+    camera.Height = HEIGHT;
+    camera.NearZ = 0.1f;
+    camera.FarZ = 100.0f;
 
     while(!glfwWindowShouldClose(window))
     {
@@ -91,19 +112,16 @@ int main(int argc, char** argv)
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        shader.Use();
         // Transformation matrices
-        glm::mat4 projection = glm::perspective(camera.Zoom, (float)WIDTH/(float)HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = camera.GetPerspectiveMatrix();
         glm::mat4 view = camera.GetViewMatrix();
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
         // Draw the loaded model
-        glm::mat4 model;
-        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // Translate it down a bit so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
+        glm::mat4 model = glm::mat4(1.0);
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        nanosuitModel.Draw(shader);
+        box.Draw();
 
         glfwSwapBuffers(window);
     }
@@ -114,15 +132,14 @@ int main(int argc, char** argv)
 
 void do_movement(GLfloat deltaTime)
 {
-	GLfloat cameraSpeed = 5.0f * deltaTime;
 	if (keys[GLFW_KEY_W])
-		camera.ProcessKeyboard(Camera_Movement::FORWARD, deltaTime);
+		camera.ProcessKeyboard(CameraMovement::FORWARD, deltaTime);
 	if (keys[GLFW_KEY_S])
-		camera.ProcessKeyboard(Camera_Movement::BACKWARD, deltaTime);
+		camera.ProcessKeyboard(CameraMovement::BACKWARD, deltaTime);
 	if (keys[GLFW_KEY_A])
-		camera.ProcessKeyboard(Camera_Movement::LEFT, deltaTime);
+		camera.ProcessKeyboard(CameraMovement::LEFT, deltaTime);
 	if (keys[GLFW_KEY_D])
-		camera.ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
+		camera.ProcessKeyboard(CameraMovement::RIGHT, deltaTime);
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)

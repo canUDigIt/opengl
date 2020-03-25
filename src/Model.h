@@ -10,13 +10,14 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <stdint.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
 #include <iostream>
 
-GLint TextureFromFile(const char* path, const std::string& directory);
+GLuint TextureFromFile(const char* path, const std::string& directory);
 
 class Model
 {
@@ -30,7 +31,7 @@ public:
     {
         for(auto i = 0; i < this->meshes.size(); ++i)
         {
-            this->meshes[i].Draw(shader);
+            this->meshes[i].Draw();
         }
     }
 
@@ -67,7 +68,7 @@ private:
     Mesh processMesh(aiMesh* pMesh, const aiScene* pScene)
     {
         std::vector<Vertex> vertices;
-        std::vector<GLuint> indices;
+        std::vector<uint32_t> indices;
         std::vector<Texture> textures;
 
         for (auto i = 0; i < pMesh->mNumVertices; ++i)
@@ -119,7 +120,9 @@ private:
             textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
         }
 
-        return Mesh(vertices, indices, textures);
+        IndexedTriangleList triList {vertices, indices};
+        Material mat {Shader("resources/shaders/model_loading.vert", "resources/shaders/model_loading.frag"), textures};
+        return Mesh(triList, mat);
     }
 
     std::vector<Texture> loadMaterialTextures(aiMaterial* pMat, const aiTextureType& textureType, const std::string& typeName)
@@ -132,7 +135,7 @@ private:
             GLboolean skip = false;
             for(GLuint j = 0; j < textures_loaded.size(); j++)
             {
-                if(textures_loaded[j].path == path)
+                if(textures_loaded[j].path == path.C_Str())
                 {
                     textures.push_back(textures_loaded[j]);
                     skip = true;
@@ -144,7 +147,7 @@ private:
                 Texture texture;
                 texture.id = TextureFromFile(path.C_Str(), this->directory);
                 texture.type = typeName;
-                texture.path = path;
+                texture.path = path.C_Str();
                 textures.push_back(texture);
                 this->textures_loaded.push_back(texture);  // Add to loaded textures
             }
@@ -157,7 +160,7 @@ private:
     std::string directory;
 };
 
-GLint TextureFromFile(const char* path, const std::string& directory)
+GLuint TextureFromFile(const char* path, const std::string& directory)
 {
      //Generate texture ID and load texture data
     std::string filename = directory + '/' + std::string(path);
