@@ -52,12 +52,12 @@ public:
 	}
 
 	// Returns the view matrix calculated using Eular Angles and the LookAt Matrix
-	glm::mat4 GetViewMatrix()
+	glm::mat4 GetViewMatrix() const
 	{
 		return glm::lookAt(Position, Position + Front, Up);
 	}
 
-    glm::mat4 GetPerspectiveMatrix()
+    glm::mat4 GetPerspectiveMatrix() const
     {
         return glm::perspective(Zoom, static_cast<float>(Width)/static_cast<float>(Height), NearZ, FarZ);
     }

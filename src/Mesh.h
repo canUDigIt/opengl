@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Shader.h"
+#include "Camera.h"
 
 #include <stdint.h>
 #include <string>
@@ -8,8 +9,8 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-
-#include <assimp/types.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 struct Vertex
 {
@@ -40,6 +41,8 @@ class Mesh
 public:
     IndexedTriangleList triList;
     Material material;
+
+    glm::mat4 modelMatrix{1.0};
 
     Mesh(const IndexedTriangleList& list, const Material& mat)
         :triList(list)
@@ -83,7 +86,7 @@ public:
       glBindVertexArray(0);
     }
 
-    void Draw()
+    void Draw(const Camera& camera)
     {
         material.shader.Use();
 
@@ -103,6 +106,15 @@ public:
             glBindTexture(GL_TEXTURE_2D, material.textures[i].id);
         }
         glActiveTexture(GL_TEXTURE0);
+
+        // Transformation matrices
+        glm::mat4 projection = camera.GetPerspectiveMatrix();
+        glm::mat4 view = camera.GetViewMatrix();
+        glUniformMatrix4fv(glGetUniformLocation(material.shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(glGetUniformLocation(material.shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
+        // Draw the loaded model
+        glUniformMatrix4fv(glGetUniformLocation(material.shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, triList.indices.size(), GL_UNSIGNED_INT, 0);

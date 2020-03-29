@@ -27,11 +27,11 @@ public:
         this->loadModel(path);
     }
 
-    void Draw(const Shader& shader)
+    void Draw(const Camera& camera)
     {
-        for(auto i = 0; i < this->meshes.size(); ++i)
+        for(auto mesh : meshes)
         {
-            this->meshes[i].Draw();
+            mesh.Draw(camera);
         }
     }
 

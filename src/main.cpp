@@ -6,8 +6,6 @@
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "Shader.h"
 #include "Camera.h"
@@ -112,16 +110,7 @@ int main(int argc, char** argv)
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Transformation matrices
-        glm::mat4 projection = camera.GetPerspectiveMatrix();
-        glm::mat4 view = camera.GetViewMatrix();
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
-
-        // Draw the loaded model
-        glm::mat4 model = glm::mat4(1.0);
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        box.Draw();
+        box.Draw(camera);
 
         glfwSwapBuffers(window);
     }
@@ -146,9 +135,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
-	if (action == GLFW_PRESS)
+    else if (action == GLFW_PRESS)
 		keys[key] = true;
-	if (action == GLFW_RELEASE)
+	else if (action == GLFW_RELEASE)
 		keys[key] = false;
 }
 
