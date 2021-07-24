@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.12)
 project(opengl VERSION 1.0 LANGUAGES CXX C)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 17)
+
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 
@@ -33,19 +36,10 @@ target_link_libraries(opengl
         stb
 )
 
-if (WIN32)
 target_link_libraries(opengl
     PRIVATE
         OpenGL::GL
 )
-else()
-target_link_libraries(opengl
-    PRIVATE
-        OpenGL::OpenGL
-        OpenGL::GLX
-        OpenGL::GLU
-)
-endif()
 
 install(TARGETS opengl DESTINATION bin)
 install(DIRECTORY resources DESTINATION bin)

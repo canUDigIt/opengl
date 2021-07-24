@@ -157,7 +157,7 @@ private:
     std::string directory;
 };
 
-GLint TextureFromFile(const char* path, const std::string& directory)
+inline GLint TextureFromFile(const char* path, const std::string& directory)
 {
      //Generate texture ID and load texture data
     std::string filename = directory + '/' + std::string(path);

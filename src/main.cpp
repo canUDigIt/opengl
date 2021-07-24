@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <iostream>
 #include <vector>
 
@@ -55,7 +56,7 @@ int main(int argc, char** argv)
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", nullptr, nullptr);
     if (window == nullptr)
     {
-        std::cout << "Failed to create GLFW window" << std::endl;
+        std::printf("Failed to create GLFW window\n" );
         glfwTerminate();
         return -1;
     }
@@ -68,7 +69,7 @@ int main(int argc, char** argv)
 
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
     {
-        std::cout << "Failed to initialize OpenGL context" << std::endl;
+        std::printf("Failed to initialize OpenGL context\n" );
         return -1;
     }
 
@@ -93,16 +94,14 @@ int main(int argc, char** argv)
 
         shader.Use();
         // Transformation matrices
-        glm::mat4 projection = glm::perspective(camera.Zoom, (float)WIDTH/(float)HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(90.0f, (float)WIDTH/(float)HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
-
-        // Draw the loaded model
         glm::mat4 model;
-        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // Translate it down a bit so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        // Translate it down a bit so it's at the center of the scene
+        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
+        // It's a bit too big for our scene, so scale it down
+        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "mvp"), 1, GL_FALSE, glm::value_ptr(projection*view*model));
         nanosuitModel.Draw(shader);
 
         glfwSwapBuffers(window);
