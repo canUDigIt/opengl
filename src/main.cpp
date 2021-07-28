@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstdio>
 #include <iostream>
 #include <vector>
@@ -21,15 +22,17 @@ void do_movement(GLfloat deltaTime);
 
 const GLuint WIDTH = 800, HEIGHT = 600;
 
-GLfloat deltaTime = 0.0f;
-GLfloat lastFrame = 0.0f;
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
 
 glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 
-Camera camera(cameraPos, cameraUp);
-GLfloat lastX = WIDTH / 2.0;
-GLfloat lastY = HEIGHT / 2.0;
+ArcBallCamera camera;
+float lastX {0.0f};
+float lastY {0.0f};
+float xRotationSpeed = 2 * glm::pi<float>() / WIDTH;
+float yRotationSpeed = glm::pi<float>() / HEIGHT;
 bool keys[1024];
 
 struct PointLight {
@@ -95,8 +98,8 @@ int main(int argc, char** argv)
         shader.Use();
         // Transformation matrices
         glm::mat4 projection = glm::perspective(90.0f, (float)WIDTH/(float)HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = camera.GetViewMatrix();
-        glm::mat4 model;
+        glm::mat4 view = convert_to_view_matrix(camera);
+        glm::mat4 model(1.0f);
         // Translate it down a bit so it's at the center of the scene
         model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
         // It's a bit too big for our scene, so scale it down
@@ -113,15 +116,6 @@ int main(int argc, char** argv)
 
 void do_movement(GLfloat deltaTime)
 {
-	GLfloat cameraSpeed = 5.0f * deltaTime;
-	if (keys[GLFW_KEY_W])
-		camera.ProcessKeyboard(Camera_Movement::FORWARD, deltaTime);
-	if (keys[GLFW_KEY_S])
-		camera.ProcessKeyboard(Camera_Movement::BACKWARD, deltaTime);
-	if (keys[GLFW_KEY_A])
-		camera.ProcessKeyboard(Camera_Movement::LEFT, deltaTime);
-	if (keys[GLFW_KEY_D])
-		camera.ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
@@ -144,14 +138,18 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 		firstMouse = false;
 	}
 
-	GLfloat xoffset = xpos - lastX;
-	GLfloat yoffset = lastY - ypos;
+	float deltaX = xpos - lastX;
+    // Invert Y
+	float deltaY = lastY - ypos;
+
+    camera.swivel_radians += deltaX * xRotationSpeed;
+    camera.pitch_radians += deltaY * yRotationSpeed;
+
 	lastX = xpos;
 	lastY = ypos;
-	camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	camera.ProcessMouseScroll(yoffset);
+    camera.distance += yoffset*0.25;
 }
