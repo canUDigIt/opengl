@@ -4,25 +4,21 @@ include(FetchContent)
 FetchContent_Declare(
     glfw
     GIT_REPOSITORY https://github.com/glfw/glfw.git
-    GIT_TAG 3.3
 )
 
 FetchContent_Declare(
     assimp
     GIT_REPOSITORY https://github.com/assimp/assimp
-    GIT_TAG v4.1.0
 )
 
 FetchContent_Declare(
     glad
     GIT_REPOSITORY https://github.com/Dav1dde/glad
-    GIT_TAG v0.1.29
 )
 
 FetchContent_Declare(
     glm
     GIT_REPOSITORY https://github.com/g-truc/glm.git
-    GIT_TAG 0.9.9.5
 )
 
 FetchContent_Declare(
