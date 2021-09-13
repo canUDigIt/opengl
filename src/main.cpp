@@ -3,6 +3,10 @@
 #include <iostream>
 #include <vector>
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include <glad/glad.h>
 
 #include <GLFW/glfw3.h>
@@ -66,7 +70,6 @@ int main(int argc, char** argv)
     glfwMakeContextCurrent(window);
 
     glfwSetKeyCallback(window, key_callback);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
@@ -80,8 +83,22 @@ int main(int argc, char** argv)
 
     glEnable(GL_DEPTH_TEST);
 
-    Shader shader("resources/shaders/model_loading.vert", "resources/shaders/model_loading.frag");
+    Shader shader {};
+    shader.fromFile("resources/shaders/model_loading.vert", "resources/shaders/model_loading.frag");
+
     Model nanosuitModel("resources/nanosuit.obj");
+
+    // Setting up ImGUI
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 460 core");
 
     while(!glfwWindowShouldClose(window))
     {
@@ -107,8 +124,24 @@ int main(int argc, char** argv)
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "mvp"), 1, GL_FALSE, glm::value_ptr(projection*view*model));
         nanosuitModel.Draw(shader);
 
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        {
+            ImGui::ShowDemoWindow();
+        }
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwSwapBuffers(window);
     }
+
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     glfwTerminate();
     return 0;

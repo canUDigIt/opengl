@@ -13,6 +13,21 @@ add_executable(opengl
     src/Mesh.h
     src/Model.h
     src/Shader.h
+
+    dependencies/imgui/imgui.cpp
+    dependencies/imgui/imgui_demo.cpp
+    dependencies/imgui/imgui_draw.cpp
+    dependencies/imgui/imgui_tables.cpp
+    dependencies/imgui/imgui_widgets.cpp
+
+    dependencies/imgui/backends/imgui_impl_glfw.cpp
+    dependencies/imgui/backends/imgui_impl_opengl3.cpp
+)
+
+target_include_directories(opengl
+    PRIVATE
+        dependencies/imgui
+        dependencies/imgui/backends
 )
 
 target_link_libraries(opengl
@@ -22,11 +37,9 @@ target_link_libraries(opengl
         assimp
         glm
         stb
-)
 
-target_link_libraries(opengl
-    PRIVATE
         OpenGL::GL
+        ${CMAKE_DL_LIBS}
 )
 
 set_property(TARGET opengl PROPERTY CXX_STANDARD 20)

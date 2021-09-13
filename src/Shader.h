@@ -11,9 +11,9 @@ class Shader
 {
 public:
     // The program ID
-    GLuint Program;
+    GLuint Program {0};
     // Constructor reads and builds the shader
-    Shader(const GLchar* vertexPath, const GLchar* fragmentPath)
+    void fromFile(const GLchar* vertexPath, const GLchar* fragmentPath)
     {
         // 1. Retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
@@ -46,7 +46,12 @@ public:
         const GLchar* vShaderCode = vertexCode.c_str();
         const GLchar* fShaderCode = fragmentCode.c_str();
 
-        // 2. Compile shaders
+        fromSource(vertexCode.c_str(), fragmentCode.c_str());
+    }
+    // Constructor reads and builds the shader
+    void fromSource(const GLchar* vShaderCode, const GLchar* fShaderCode)
+    {
+        // Compile shaders
         GLuint vertex, fragment;
         GLint success;
         GLchar infoLog[512];
